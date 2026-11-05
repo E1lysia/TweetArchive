@@ -41,24 +41,6 @@ GitHub 自动生成的 `Source code (zip)` 是源码，不包含完整运行环�
 | `local_archive/test_*.py` | 归档与翻译测试 |
 | `packaging/` | 打包、安装及发行版校验脚本和配套资源 |
 
-## 开发说明
-
-当前代码来自 Windows 本地开发环境，部分安装、预览与打包脚本仍使用 `D:\gallery-dl` 等本机路径。开发者需检查脚本中的路径并配置依赖；克隆源码后尚不能直接一键打包。
-
-本地迭代默认只更新程序；收到明确的打包要求后再生成或替换分享 ZIP。
-
-翻译校验失败时最多额外重试两次（配置的 `max_retries` 更低时按较低值执行），仍失败则跳过，其他条目继续处理。失败原因和推文标识写入任务日志，并保存至资料库的 `_推文归档/翻译记录/`。密钥、余额、接口或连接错误仍停止派发后续请求。重新补译只处理未保存译文的内容；重试可能产生额外 API 费用。
-
-大模型翻译采用编号占位符与简单 JSON 返回格式，链接、用户名、话题及指定人名由程序在本机还原。保护编号遗漏、重复或变动时继续拒绝写入。DeepL 使用其原生 XML 翻译接口。
-
-桌面依赖见 `desktop_app/requirements.txt`，启动器使用 .NET 8。桌面侧的历史开发说明见 `desktop_app/README.md`。
-
-在配置好相应依赖的 Python 环境中运行测试：
-
-```powershell
-python -m unittest discover -s local_archive -p "test_*.py"
-python -m unittest discover -s desktop_app -p "test_*.py"
-```
 
 ## 发行与数据
 
