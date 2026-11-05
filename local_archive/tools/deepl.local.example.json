@@ -1,0 +1,11 @@
+{
+  "enabled": true,
+  "api_key": "",
+  "plan": "auto",
+  "batch_size": 25,
+  "workers": 3,
+  "max_characters_per_run": 10000,
+  "timeout_seconds": 30,
+  "max_retries": 3,
+  "protected_terms": ["青木陽菜", "鈴木みのり", "MyGO!!!!!", "Ave Mujica", "BanG Dream!"]
+}

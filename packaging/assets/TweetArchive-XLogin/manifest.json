@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "TweetArchive · 本机登录导出",
+  "version": "1.0.1",
+  "description": "仅将本人 X 登录信息交给正在运行的本机刷新工具。",
+  "permissions": [
+    "cookies"
+  ],
+  "host_permissions": [
+    "*://*.x.com/*",
+    "*://*.twitter.com/*",
+    "http://127.0.0.1/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

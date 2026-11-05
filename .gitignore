@@ -1,0 +1,60 @@
+# Generated releases and QA libraries (publish clean ZIPs through GitHub Releases)
+/release/
+/packaging/qa/
+/packaging/launcher-dist/
+/desktop_app/launcher/dist/
+/design/
+
+# Personal translation batches
+/local_archive/translations/
+
+# Python / .NET / editor output
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+vendor/
+bin/
+obj/
+.vs/
+.idea/
+*.log
+*.tmp
+*.bak
+*.zip
+*.7z
+*.exe
+*.dll
+*.pdb
+
+# Local credentials and preferences; keep sanitized examples
+.env
+.env.*
+!.env.example
+*.local.json
+!*.local.example.json
+cookies*.txt
+accounts.json
+accounts.*.json
+storage.local.json
+*.pem
+*.key
+
+# User databases / media / backup libraries
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.mp4
+*.webm
+*.mov
+*.mkv
+_推文归档/
+_版本备份/
+
+# OS metadata
+Thumbs.db
+Desktop.ini
+.DS_Store

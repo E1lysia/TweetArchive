@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' file:; media-src 'self' file:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>TweetArchive · 本地推文归档</title>
+<style>
+:root{color-scheme:dark;font:15px/1.7 system-ui,"Microsoft YaHei",sans-serif;background:#10171a;color:#e7eded}
+*{box-sizing:border-box}body{margin:0}header,main{max-width:1120px;margin:auto;padding:28px 24px}header{padding-bottom:12px}
+.eyebrow{color:#8bcab5;letter-spacing:.14em;font-size:12px}h1{font-size:32px;font-weight:600;margin:8px 0}p{color:#a4b3b4;margin:4px 0}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}input,select,button{font:inherit;border:1px solid #374648;border-radius:8px;background:#192427;color:#e7eded;padding:9px 12px}input{flex:1;min-width:210px}button{cursor:pointer}button:disabled{opacity:.35;cursor:default}
+#stats{margin:14px 0;color:#93aaa7;font-size:13px}.card{border:1px solid #2b3b3e;background:#162124;border-radius:14px;padding:22px;margin:0 0 18px}
+.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.author{font-weight:600}.date,.handle{color:#92a6a8;font-size:13px}.body{white-space:pre-wrap;overflow-wrap:anywhere;margin:18px 0;color:#e0e9e8}.pending{color:#e4c586;background:#352e20;padding:10px 14px;border-radius:8px;margin:16px 0;font-size:13px}
+.text-block{margin:18px 0}.text-label{font-size:12px;color:#9ab4b2;letter-spacing:.08em}.text-block .body{margin:6px 0 0}.translation{background:#1c3030;border-left:3px solid #86cbb3;padding:12px 16px;border-radius:0 8px 8px 0}.translation .text-label{color:#9bdec4}.translation .body{color:#e1f1e9}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.grid img{width:100%;height:320px;object-fit:contain;background:#0c1315;border-radius:8px;display:block}a{color:#9ad8c6;text-decoration:none}a:hover{text-decoration:underline}.foot{display:flex;justify-content:space-between;margin-top:14px;font-size:13px;color:#8da3a5}.pages{display:flex;justify-content:center;align-items:center;gap:18px;padding:18px}#empty{padding:50px 0;text-align:center;color:#9cb0b0}
+.grid video{width:100%;max-height:420px;background:#0c1315;border-radius:8px}
+@media(max-width:650px){header,main{padding:20px 14px}h1{font-size:27px}.card{padding:16px}.grid{grid-template-columns:1fr}.grid img{height:auto;max-height:600px}}
+</style>
+<header><div class="eyebrow">LOCAL COLLECTION / 本地收藏</div><h1>TweetArchive</h1><p>原文 · 中文译文 · 本地图片与视频 · 离线浏览</p><p>原创、引用和转推分别标识；引用来源保留原作者，待补全记录尚未核实。</p>
+<div class="filters"><input id="search" type="search" placeholder="搜索原文、译文、作者或推文 ID" aria-label="搜索归档"><select id="account" aria-label="作者"><option value="">全部作者</option></select><select id="view" aria-label="语言显示"><option value="bilingual">双语对照</option><option value="zh">仅中文</option><option value="original">仅原文</option></select><select id="status" aria-label="正文状态"><option value="archived">已取得原文</option><option value="pending">正文待补全</option><option value="">全部状态</option></select><input id="month" type="month" aria-label="月份" style="flex:0;min-width:155px"></div><div id="stats"></div></header>
+<main><div id="results"></div><div id="empty" hidden>没有符合条件的记录。</div><nav class="pages"><button id="prev">上一页</button><span id="page"></span><button id="next">下一页</button></nav></main>
+<script src="_推文归档/data.js"></script>
+<script>
+'use strict';
+const data=window.TWEET_ARCHIVE||[], $=id=>document.getElementById(id);let page=0;const size=16;
+function node(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
+function textBlock(label,value,cls){const e=node('section','text-block '+(cls||''));e.append(node('div','text-label',label),node('div','body',value));return e;}
+const kinds={original:'原创',quote:'引用',retweet:'转推',reference:'关联来源'};
+const accounts=new Map(data.map(d=>[d.account,(d.account_name||d.author)+' '+(d.account_handle||d.handle)]));for(const [key,name] of accounts){const o=node('option','',name);o.value=key;$('account').append(o);}
+function render(){
+const q=$('search').value.trim().toLowerCase(), acc=$('account').value, status=$('status').value, month=$('month').value, mode=$('view').value;
+const rows=data.filter(d=>(!acc||d.account===acc)&&(!status||d.status===status)&&(!month||d.date_beijing.startsWith(month))&&(!q||[d.content,d.translation_zh,d.author,d.handle,d.tweet_id].join(' ').toLowerCase().includes(q)));
+const pages=Math.max(1,Math.ceil(rows.length/size));page=Math.max(0,Math.min(page,pages-1));$('results').replaceChildren();
+const ready=data.filter(d=>d.status==='archived').length,translated=data.filter(d=>d.translation_zh).length;$('stats').textContent=`共 ${data.length} 条推文 · 已取得原文 ${ready} 条 · 已附译文 ${translated} 条 · 待补全 ${data.length-ready} 条 · 当前筛选 ${rows.length} 条`;
+for(const d of rows.slice(page*size,(page+1)*size)){
+const card=node('article','card'),top=node('div','top'),who=node('div');who.append(node('span','author',d.author),node('span','handle',' '+d.handle));top.append(who,node('span','date',d.date_beijing.slice(0,16).replace('T',' ')+' 北京时间'));card.append(top);
+card.append(node('div','text-label',(kinds[d.post_type]||'待核对')+' · 归档账号：'+(d.account_name||d.account)));
+if(d.status==='pending')card.append(node('div','pending','正文待补全 · 当前仅确认图片在本地，尚未核实是否为转推或引用。'));
+else {
+if(mode!=='zh'||!d.translation_zh)card.append(textBlock('原文',d.content||'原推无文字正文'));
+if(mode!=='original'&&d.translation_zh)card.append(textBlock('中文译文',d.translation_zh,'translation'));
+else if(mode!=='original'&&d.content&&d.content.trim())card.append(node('div','pending','中文译文待补充'));
+}
+const grid=node('div','grid');for(const path of d.images){const link=node('a');link.href=path.split('/').map(encodeURIComponent).join('/');link.target='_blank';link.rel='noopener noreferrer';const img=node('img');img.src=link.href;img.loading='lazy';img.alt=d.author+' 本地图片';link.append(img);grid.append(link);}for(const path of d.videos||[]){const video=node('video');video.src=path.split('/').map(encodeURIComponent).join('/');video.controls=true;video.preload='metadata';grid.append(video);}card.append(grid);
+const foot=node('div','foot'),link=node('a','','查看原推 ↗');link.href=d.url;link.target='_blank';link.rel='noopener noreferrer';foot.append(node('span','',d.tweet_id),link);card.append(foot);$('results').append(card);}
+$('empty').hidden=rows.length>0;$('page').textContent=`${page+1} / ${pages}`;$('prev').disabled=page===0;$('next').disabled=page>=pages-1;
+}
+for(const id of ['search','account','view','status','month'])$(id).addEventListener('input',()=>{page=0;render();});
+$('prev').onclick=()=>{page--;render();window.scrollTo(0,0);};$('next').onclick=()=>{page++;render();window.scrollTo(0,0);};render();
+</script>
+</html>
